@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "niz-toolkit"
+version = "0.0.1"
+description = ""
+authors = ["Joseph Lee <cgjosephlee@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+packages = [{include = "niz_toolkit"}]
+
+[tool.poetry.scripts]
+niztk = "niz_toolkit.cli:main"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+hidapi = "^0.13.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
