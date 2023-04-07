@@ -63,7 +63,7 @@ class App:
 
         PID = find_device()
         if PID:
-            self.kbd = Keyboard(VID, PID)
+            self.kbd = Keyboard(PID)
             self.label_model.config(text=f"Model: {self.kbd.model}")
             self.label_ver.config(text=f"Firmware: {self.kbd.version}")
             self.label_status.config(text="Status: Unlockd")

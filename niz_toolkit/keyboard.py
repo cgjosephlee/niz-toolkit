@@ -17,18 +17,26 @@ def find_device() -> Optional[int]:
         # assume only one
         break
     if not PID:
-        logger.error("No device with Niz vendor_id (1155) is found. Make sure your keyboard is on Win mode.")
+        logger.error(
+            "No device with Niz vendor_id (1155) is found. Make sure your keyboard is on Win mode."
+        )
     return PID
 
 
 class Keyboard:
-    def __init__(self, VID: int, PID: int) -> None:
+    def __init__(self, PID: int, VID: int = const.VID) -> None:
         self.device = hid.device()
-        self.device.open(VID, PID)
-        self.device.set_nonblocking(True)
+        try:
+            self.device.open(VID, PID)
+        except OSError:
+            logger.fatal(f"Failed to open device ({VID}, {PID}).")
+            self.device.close()
+            raise
+        # self.device.set_nonblocking(True)
         self.PID = PID
         self.locked = False
 
+    @property
     def model(self):
         return const.PID_COLLECTION.get(self.PID, f"{self.PID}")
 
@@ -42,8 +50,8 @@ class Keyboard:
         data = self.read(64)
         ver_str = None
         if data:
-            # 2 byte command, 62 bytes version string
-            _, ver = struct.unpack("H62s", data)
+            # 2 bytes command, 62 bytes string
+            _, ver = struct.unpack("H62s", bytes(data))
             ver_str = ver.decode()
         return ver_str
 
@@ -72,19 +80,18 @@ class Keyboard:
         else:
             logger.error("Keyboard is not locked!")
 
-    def send(self, cmd: int, data="") -> int:
+    def send(self, cmd: int, data: str="") -> int:
         """
         Send command to keyboard.
         Format: 1 byte 0, 2 bytes command, 62 bytes data
         """
         logger.debug(f"send: 0x{cmd:02X}, {data}")
-        data = data.encode()
-        buf = struct.pack("!bH61s", 0, cmd, data)
+        buf = struct.pack("!bH62s", 0, cmd, data.encode())
         result = self.device.write(buf)
         logger.debug(f"write ({result}): {buf.hex(':')}")
         return result
 
-    def read(self, num=64, timeout=100) -> Optional[bytes]:
+    def read(self, num=64, timeout=100) -> Optional[list[int]]:
         """
         Read data from hid device.
         Format: 2 bytes command, 62 bytes data
