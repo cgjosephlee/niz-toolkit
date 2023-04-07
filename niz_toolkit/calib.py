@@ -61,9 +61,9 @@ class App:
         self.btn_calib_init.pack()
         self.btn_calib_one.pack()
 
-        PID = find_device()
+        path, PID, PNAME = find_device()
         if PID:
-            self.kbd = Keyboard(PID)
+            self.kbd = Keyboard(path, PID, PNAME)
             self.label_model.config(text=f"Model: {self.kbd.model}")
             self.label_ver.config(text=f"Firmware: {self.kbd.version}")
             self.label_status.config(text="Status: Unlockd")

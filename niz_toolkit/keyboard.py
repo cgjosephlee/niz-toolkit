@@ -9,36 +9,43 @@ from . import const
 logger = logging.getLogger(__name__)
 
 
-def find_device() -> Optional[int]:
-    PID = None
+def find_device():
+    path, PID, PNAME = None, None, None
     for device_dict in hid.enumerate(vendor_id=const.VID):
-        logger.debug(device_dict)
-        PID = device_dict["product_id"]
-        # assume only one
-        break
+        if device_dict["interface_number"] == 1:
+            logger.debug(device_dict)
+            path = device_dict["path"]
+            PID = device_dict["product_id"]
+            PNAME = device_dict["product_string"]
+            # assume only one
+            break
     if not PID:
         logger.error(
             "No device with Niz vendor_id (1155) is found. Make sure your keyboard is on Win mode."
         )
-    return PID
+    return path, PID, PNAME
 
 
 class Keyboard:
-    def __init__(self, PID: int, VID: int = const.VID) -> None:
+    def __init__(self, path: bytes, PID: Optional[int]=None, PNAME: Optional[str]=None) -> None:
         self.device = hid.device()
         try:
-            self.device.open(VID, PID)
+            self.device.open_path(path)
         except OSError:
-            logger.fatal(f"Failed to open device ({VID}, {PID}).")
+            logger.fatal(f"Failed to open device ({path.decode()}).")
             self.device.close()
             raise
         # self.device.set_nonblocking(True)
         self.PID = PID
+        self.PNAME = PNAME
         self.locked = False
 
     @property
     def model(self):
-        return const.PID_COLLECTION.get(self.PID, f"{self.PID}")
+        if self.PNAME:
+            return self.PNAME
+        else:
+            return const.PID_COLLECTION.get(self.PID, f"{self.PID}")
 
     @property
     def version(self):
