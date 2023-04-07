@@ -58,7 +58,7 @@ class Keyboard:
         ver_str = None
         if data:
             # 2 bytes command, 62 bytes string
-            _, ver = struct.unpack("H62s", bytes(data))
+            _, ver = struct.unpack("H62s", data)
             ver_str = ver.decode()
         return ver_str
 
@@ -82,7 +82,7 @@ class Keyboard:
     def calib_press(self):
         if self.locked:
             self.send(const.Command.CALIB_PRESS)
-            data = self.read()
+            data = self.read()  # 00:de:de:00 ...
             logger.info("Calibrate one done.")
         else:
             logger.error("Keyboard is not locked!")
@@ -98,7 +98,7 @@ class Keyboard:
         logger.debug(f"write ({result}): {buf.hex(':')}")
         return result
 
-    def read(self, num=64, timeout=100) -> Optional[list[int]]:
+    def read(self, num=64, timeout=500) -> Optional[bytes]:
         """
         Read data from hid device.
         Format: 2 bytes command, 62 bytes data
@@ -109,7 +109,7 @@ class Keyboard:
             logger.debug(f"read ({len(data)}): {bytes(data).hex(':')}")
         except IOError as e:
             logger.error(e)
-        return data
+        return bytes(data)
 
     def close(self):
         self.device.close()
