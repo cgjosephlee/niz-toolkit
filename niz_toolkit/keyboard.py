@@ -65,12 +65,12 @@ class Keyboard:
     def lock(self):
         self.send(const.Command.KEY_LOCK)
         self.locked = True
-        logger.info("Keyboard locked")
+        logger.info("Keyboard locked.")
 
     def unlock(self):
         self.send(const.Command.KEY_LOCK, "/x01")
         self.locked = False
-        logger.info("Keyboard unlocked")
+        logger.info("Keyboard unlocked.")
 
     def calib_init(self):
         if self.locked:
