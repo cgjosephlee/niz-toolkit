@@ -68,7 +68,7 @@ class Keyboard:
         logger.info("Keyboard locked.")
 
     def unlock(self):
-        self.send(const.Command.KEY_LOCK, "/x01")
+        self.send(const.Command.KEY_LOCK, "\x01")
         self.locked = False
         logger.info("Keyboard unlocked.")
 
