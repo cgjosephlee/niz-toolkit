@@ -1,7 +1,7 @@
 import argparse
 import logging
 import sys
-from .calib import calib
+from .calib import calib, lock_cli, unlock_cli
 
 
 def main():
@@ -10,6 +10,10 @@ def main():
     parser.add_argument("--debug", action="store_true", help="debug")
     subcmd = parser.add_subparsers(metavar="subcmd")
     subcmd.required = True
+    parser_calib = subcmd.add_parser("lock", help="Lock")
+    parser_calib.set_defaults(func=lock_cli)
+    parser_calib = subcmd.add_parser("unlock", help="Unlock")
+    parser_calib.set_defaults(func=unlock_cli)
     parser_calib = subcmd.add_parser("calib", help="Calibration")
     parser_calib.set_defaults(func=calib)
     args = parser.parse_args()

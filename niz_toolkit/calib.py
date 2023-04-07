@@ -1,7 +1,7 @@
 import logging
+import sys
 import tkinter as tk
 
-from .const import VID
 from .keyboard import Keyboard, find_device
 
 logger = logging.getLogger(__name__)
@@ -107,3 +107,33 @@ def calib(args):
 
     root.protocol("WM_DELETE_WINDOW", on_closing)
     root.mainloop()
+
+
+def lock_cli(args):
+    path, PID, PNAME = find_device()
+    if PID:
+        device = Keyboard(path, PID, PNAME)
+    else:
+        sys.exit(1)
+    try:
+        device.lock()
+    except Exception as e:
+        logger.fatal(f"Lock failed {e}.")
+        device.close()
+        raise
+    device.close()
+
+
+def unlock_cli(args):
+    path, PID, PNAME = find_device()
+    if PID:
+        device = Keyboard(path, PID, PNAME)
+    else:
+        sys.exit(1)
+    try:
+        device.unlock()
+    except Exception as e:
+        logger.fatal(f"Unlock failed {e}.")
+        device.close()
+        raise
+    device.close()
