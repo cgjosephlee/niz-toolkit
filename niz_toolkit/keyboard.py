@@ -92,7 +92,7 @@ class Keyboard:
         Send command to keyboard.
         Format: 1 byte 0, 2 bytes command, 62 bytes data
         """
-        logger.debug(f"send: 0x{cmd:02X}, {data}")
+        logger.debug(f"send: 0x{cmd:02X}, {repr(data)}")
         buf = struct.pack("!bH62s", 0, cmd, data.encode())
         result = self.device.write(buf)
         logger.debug(f"write ({result}): {buf.hex(':')}")
